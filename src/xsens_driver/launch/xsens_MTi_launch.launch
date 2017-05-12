@@ -1,0 +1,38 @@
+<!--
+remark:
+the device is inaccessible for a while after plugging it in
+When having problems with the device being busy the first 20 seconds after plugin,
+purge the modemmanager application.
+
+sudo apt-get purge modemmanager
+-->
+
+<launch>
+
+    <!-- http://wiki.ros.org/xsens_driver -->
+
+    <arg name="mt_device"          default=  "/dev/ttyUSB0" />
+    <arg name="mt_baudrate"        default=        "115200" />
+
+    <!-- self.frame_id = get_param('~frame_id', 'mti/data') -->
+    <!-- the frame id of the IMU -->
+    <arg name="mt_frame_id"         default=      "imu_link" />
+    <!-- the desired orientation of the ~frame_id reference frame -->
+    <arg name="mt_frame_local"      default=      "ENU" />
+    <arg name="mt_frame_local_imu"  default=      "ENU" />
+
+    <!-- node name -->
+    <arg name="mtnode_name"         default= "MTi_300_2A5G4_mtnode"   />
+
+    <!-- launch Mti IMU device -->
+
+    <node pkg="xsens_driver" type="mtnode.py" name="$(arg mtnode_name)"
+          args="_device:=$(arg mt_device) _baudrate:=$(arg mt_baudrate)" output="screen" >
+
+        <param name="frame_id"         value="$(arg mt_frame_id)" />
+        <param name="frame_local"      value="$(arg mt_frame_local)" />
+        <param name="frame_local_imu"  value="$(arg mt_frame_local_imu)" />
+
+    </node>
+
+</launch>

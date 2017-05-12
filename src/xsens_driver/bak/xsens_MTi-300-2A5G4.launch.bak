@@ -1,0 +1,85 @@
+<!--
+remark:
+the device is inaccessible for a while after plugging it in
+When having problems with the device being busy the first 20 seconds after plugin,
+purge the modemmanager application.
+
+sudo apt-get purge modemmanager
+-->
+
+<launch>
+
+    <!-- http://wiki.ros.org/xsens_driver -->
+
+    <arg name="mt_sensor_mode"     default=  "3" />
+    <arg name="mt_sample_rate"     default=  "20" />
+
+    <arg name="mt_device"          default=  "/dev/ttyUSB0" />
+    <arg name="mt_baudrate"        default=        "115200" />
+
+    <!-- self.frame_id = get_param('~frame_id', 'mti/data') -->
+    <!-- the frame id of the IMU -->
+    <arg name="mt_frame_id"         default=      "imu_link" />
+    <!-- the desired orientation of the ~frame_id reference frame -->
+    <arg name="mt_frame_local"      default=      "ENU" />
+    <arg name="mt_frame_local_imu"  default=      "ENU" />
+
+    <arg name="mtdevice_name"       default= "MTi_300_2A5G4_mtdevice" />
+    <arg name="mtnode_name"         default= "MTi_300_2A5G4_mtnode"   />
+
+    <!--
+        -m, sensorMode=SENSORMODE
+            Configures the device to a particular sensor mode. The values can be
+            1 (for sensor data),
+            2 (for sensor data with rate quantities) or
+            3 (for filter estimates).
+            Use it in conjunction with -f command
+
+        -f, mtiSampleRate=SAMPLERATE
+            Configures the device to the specified Output Data Rate (ODR).
+            Possible ODR's are 1,2,4,5,10,20,40,50,80,100,200 & 400
+            (the maximum output rate for mag, baro and GNSS sensor is 100Hz, 50Hz and 4Hz respectively)
+
+        -a, change-baudrate=NEW_BAUD
+            Change baudrate from BAUD (see below) to NEW_BAUD.
+        -e, echo
+            Print MTData. It is the default if no other command is supplied.
+        -i, inspect
+            Print current MT device configuration.
+        -x, xkf-scenario=ID
+            Change the current XKF scenario.
+    Options:
+        -d, device=DEV
+            Serial interface of the device (default: /dev/ttyUSB0). If 'auto', then
+            all serial ports are tested at all baudrates and the first
+            suitable device is used.
+        -b, baudrate=BAUD
+            Baudrate of serial interface (default: 115200). If 0, then all
+            rates are tried until a suitable one is found.
+        -s, skip-factor=SKIPFACTOR
+            Number of samples to skip before sending MTData2 message
+            (default: 0).
+            The frequency at which MTData message is send is:
+                115200/(PERIOD * (SKIPFACTOR + 1))
+            If the value is 0xffff, no data is send unless a ReqData request
+            is made.
+    -->
+
+    <!-- set Mti IMU configuration -->
+    <node pkg="xsens_driver" type="mtdevice.py" name="$(arg mtdevice_name)"
+          args="-m $(arg mt_sensor_mode) -f $(arg mt_sample_rate)" output="screen" >
+    </node>
+
+    <!-- launch Mti IMU device -->
+
+    <node pkg="xsens_driver" type="mtnode.py" name="$(arg mtnode_name)"
+          args="_device:=$(arg mt_device) _baudrate:=$(arg mt_baudrate)" output="screen" >
+
+        <param name="frame_id"         value="$(arg mt_frame_id)" />
+        <param name="frame_local"      value="$(arg mt_frame_local)" />
+        <param name="frame_local_imu"  value="$(arg mt_frame_local_imu)" />
+
+    </node>
+
+
+</launch>

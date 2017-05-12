@@ -110,3 +110,7 @@
 * The device is inaccessible for a while after plugging it in
     When having problems with the device being busy the first 20 seconds after
     plugin, purge the modemmanager application.
+
+    ```
+    sudo apt-get purge modemmanager
+    ```
